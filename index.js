@@ -39,6 +39,17 @@ app.get('/getEmployee/:id', function (req, res) {
     });
 });
 
-var server = app.listen(5000, function () {
+app.get('/removeEmployee/:id', function (req, res) {
+    var request = new sql.Request();
+    request.query("delete from EmpMaster where EmpId='" + req.params.id + "'", function (err, recordset) {
+
+        if (err) console.log(err);
+
+        res.send(recordset);
+
+    });
+});
+
+app.listen(5000, function () {
     console.log('Server is running..');
 });
