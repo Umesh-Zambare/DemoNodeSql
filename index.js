@@ -19,22 +19,7 @@ app.get('/getEmployees', function (req, res) {
     var request = new sql.Request();
 
     // query to the database and get the records
-    request.query('select * from Employee', function (err, recordset) {
-
-        if (err) console.log(err);
-
-        res.send(recordset);
-
-    });
-});
-
-app.get('/getLogin', function (req, res) {
-
-    // create Request object
-    var request = new sql.Request();
-
-    // query to the database and get the records
-    request.query('select * from Login', function (err, recordset) {
+    request.query('select * from EmpMaster', function (err, recordset) {
 
         if (err) console.log(err);
 
