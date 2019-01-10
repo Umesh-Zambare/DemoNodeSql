@@ -32,7 +32,7 @@ app.get('/getEmployee/:id', function (req, res) {
     var request = new sql.Request();
     request.query("select * from EmpMaster where EmpId='" + req.params.id + "'", function (err, recordset) {
 
-        if (err) console.log(err);
+        if (err) console.error(err);
 
         res.send(recordset);
 
