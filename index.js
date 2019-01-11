@@ -13,41 +13,78 @@ sql.connect(config, function (err) {
 
 });
 
-app.get('/getEmployees', function (req, res) {
-
-    // create Request object
-    var request = new sql.Request();
-
-    // query to the database and get the records
-    request.query('select * from EmpMaster', function (err, recordset) {
-
-        if (err) console.log(err);
-
-        res.send(recordset);
-
-    });
+app.get('/getEmployee/:empId', function (request, response) {
+    try {
+        new sql.Request().query("select * from EmpMaster where EmpId='" + req.params.id + "'", function (error, recordset) {
+            if (error) {
+                console.error(error);
+                response.send({
+                    status: 404,
+                    error: error
+                });
+            } else {
+                response.send({
+                    status: 200,
+                    result: recordset.recordset
+                });
+            }
+        });
+    } catch (error) {
+        response.send({
+            status: 500,
+            error: error
+        });
+    }
 });
 
-app.get('/getEmployee/:id', function (req, res) {
-    var request = new sql.Request();
-    request.query("select * from EmpMaster where EmpId='" + req.params.id + "'", function (err, recordset) {
+app.post('/addEmployee', function (request, response) {
+    try {
+        let employee = request.body.employee;
 
-        if (err) console.log(err);
+        let transaction = new sql.Transaction();
 
-        res.send(recordset);
-
-    });
+        transaction.begin().then(function () {
+            let request = new sql.Request(transaction);
+            request.query("insert into EmpMaster(EmpId, Name, Gender, Age, Salary, City) values('" + employee.EmpId + "','" + employee.Name + "','" + employee.Gender + "','" + employee.Age + "','" + employee.Salary + "','" + employee.City + "')").then(function () {
+                transaction.commit().then(function (recordSet) {
+                    console.log("Added to DB ", recordSet);
+                    response.send({
+                        status: 200,
+                        result: recordset.recordset
+                    });
+                }).catch(function (error) {
+                    console.error("Error in Transaction Commit " + error);
+                    response.send({
+                        status: 500,
+                        error: error
+                    });
+                });
+            }).catch(function (error) {
+                console.error("Error in Request Query " + error);
+                response.send({
+                    status: 500,
+                    error: error
+                });
+            });
+        }).catch(function (error) {
+            console.error("Error in Transaction Begin " + error);
+            response.send({
+                status: 500,
+                error: error
+            });
+        });
+    } catch (error) {
+        response.send({
+            status: 500,
+            error: error
+        });
+    }
 });
 
-app.get('/removeEmployee/:id', function (req, res) {
-    var request = new sql.Request();
-    request.query("delete from EmpMaster where EmpId='" + req.params.id + "'", function (err, recordset) {
+app.put('/updateEmployee', function (request, response) {
+});
 
-        if (err) console.log(err);
-
-        res.send(recordset);
-
-    });
+app.delete('/removeEmployee', function (request, response) {
 });
 
 app.listen(5000, function () {
